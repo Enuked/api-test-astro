@@ -1,0 +1,33 @@
+---
+const API_KEY = 'pNQd7OHCz4E8n38v7H6aXPgcQ188Gpr97IepcX4F';
+
+const fetchAPOD = async () => {
+  try {
+    const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&concept_tags=true`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const imageData = await response.json();
+    return imageData;
+  } catch (error) {
+    console.error('Error:', error);
+    return { error: error.message };
+  }
+};
+
+const { url, title, explanation, error, concept_tags } = await fetchAPOD();
+const hashtags = concept_tags ? explanation.split(' ').filter(word => word.length > 4).map(word => `#${word}`) : [];
+const description = `${explanation} ${hashtags.join(' ')}`;
+---
+
+<astro>
+  {error ? (
+    <p>Error: {error}</p>
+  ) : (
+    <div>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <img src={url} alt={title} />
+    </div>
+  )}
+</astro>
